@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"01-projects/01-go/02-cli/vercel-cli/pkg/http_client"
+	"github.com/m87wheeler/golang-vercel-cli/pkg/http_client"
 )
 
 func NewVercelAPI(httpClient *http_client.HttpClient, endpoint, authToken, teamId string, projectIds map[string]string) *VercelAPI {

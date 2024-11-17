@@ -1,6 +1,6 @@
 package vercel
 
-import "01-projects/01-go/02-cli/vercel-cli/pkg/http_client"
+import "github.com/m87wheeler/golang-vercel-cli/pkg/http_client"
 
 type VercelAPI struct {
 	TeamID     string

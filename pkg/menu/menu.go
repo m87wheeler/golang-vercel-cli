@@ -1,11 +1,12 @@
 package menu
 
 import (
-	"01-projects/01-go/02-cli/vercel-cli/pkg/utils"
 	"fmt"
 	"log"
 	"os"
 	"text/tabwriter"
+
+	"github.com/m87wheeler/golang-vercel-cli/pkg/utils"
 
 	"github.com/buger/goterm"
 	"github.com/pkg/term"

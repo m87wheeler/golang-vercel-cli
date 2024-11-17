@@ -1,4 +1,4 @@
-module 01-projects/01-go/02-cli/vercel-cli
+module github.com/m87wheeler/golang-vercel-cli
 
 go 1.23.3
 

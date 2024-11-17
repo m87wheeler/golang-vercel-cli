@@ -1,7 +1,11 @@
 package utils
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -51,4 +55,30 @@ func ToggleState(states []string, state string) []string {
 
 	// State doesn't exist, add it
 	return append(states, state)
+}
+
+func GetRootDir() (string, error) {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
+func Reader() *bufio.Reader {
+	// Initiate user input reader
+	reader := bufio.NewReader(os.Stdin)
+	return reader
+}
+
+func UserInput(reader *bufio.Reader, msg string) (string, error) {
+	fmt.Printf("%s:", msg)
+	key, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	if key == "" {
+		return "", errors.New("no value provided")
+	}
+	return key, nil
 }

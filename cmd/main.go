@@ -5,23 +5,30 @@ import (
 	"log"
 	"os"
 
-	"01-projects/01-go/02-cli/vercel-cli/pkg/http_client"
-	"01-projects/01-go/02-cli/vercel-cli/pkg/menu"
-	"01-projects/01-go/02-cli/vercel-cli/pkg/utils"
-	"01-projects/01-go/02-cli/vercel-cli/pkg/vercel"
+	"github.com/m87wheeler/golang-vercel-cli/internal/environment"
+	"github.com/m87wheeler/golang-vercel-cli/pkg/http_client"
+	"github.com/m87wheeler/golang-vercel-cli/pkg/menu"
+	"github.com/m87wheeler/golang-vercel-cli/pkg/utils"
+	"github.com/m87wheeler/golang-vercel-cli/pkg/vercel"
 
 	"github.com/joho/godotenv"
 )
 
-var projects = map[string]string{
-	"ved-front":            "prj_UgdzEpZRLCD7JwXVU4WsNFuFwKwi",
-	"ved-front-split-test": "prj_FUa8su0HhrW31lJbNBExwFEFAiol",
-}
-
 func main() {
+	// Load or configure environment
+	e := environment.NewEnvironment()
+	e.Load()
+
+	if !e.EnvFound {
+		log.Default().Println("No env file found")
+		e.Configure() // exits from app
+	}
+
+	// Load environment variables
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
+
 	}
 
 	vercelEndpoint := os.Getenv("VERCEL_ENDPOINT")
@@ -34,7 +41,7 @@ func main() {
 
 	// Project Name Menu
 	m := menu.NewMenu("Select a project")
-	for n := range projects {
+	for n := range e.Projects {
 		m.AddItem(n, n)
 	}
 	projectName := m.Display()
@@ -57,7 +64,7 @@ func main() {
 
 	// Fetch Deployments
 	c := http_client.NewHttpClient()
-	v := vercel.NewVercelAPI(c, vercelEndpoint, vercelAuthKey, vercelTeamID, projects)
+	v := vercel.NewVercelAPI(c, vercelEndpoint, vercelAuthKey, vercelTeamID, e.Projects)
 	ds, err := v.GetDeployments(projectName, 10, 24, states)
 
 	if err != nil {
