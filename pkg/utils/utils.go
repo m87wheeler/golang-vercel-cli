@@ -57,6 +57,14 @@ func ToggleState(states []string, state string) []string {
 	return append(states, state)
 }
 
+func GetHomeDir() (string, error) {
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
 func GetRootDir() (string, error) {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {

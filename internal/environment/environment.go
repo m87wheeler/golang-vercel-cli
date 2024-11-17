@@ -8,8 +8,14 @@ import (
 	"github.com/m87wheeler/golang-vercel-cli/pkg/utils"
 )
 
+const (
+	ENV_FILE_DIR  = "go_vercel_cli/"
+	ENV_FILE_NAME = ".env"
+)
+
 type Environment struct {
 	// env file
+	EnvFileDir  string
 	EnvFileName string
 	EnvFound    bool
 	// vercel values
@@ -21,7 +27,8 @@ type Environment struct {
 
 func NewEnvironment() *Environment {
 	return &Environment{
-		EnvFileName: ".env",
+		EnvFileDir:  ENV_FILE_DIR,
+		EnvFileName: ENV_FILE_NAME,
 		EnvFound:    false,
 		TeamID:      "",
 		AuthKey:     "",
@@ -34,14 +41,22 @@ func NewEnvironment() *Environment {
 }
 
 func (e *Environment) Load() {
-	root, err := utils.GetRootDir()
+	homeDir, err := utils.GetHomeDir()
 	if err != nil {
 		panic(err)
 	}
-	dir, err := os.ReadDir(root)
+
+	fp := homeDir + "/" + e.EnvFileDir
+
+	dir, err := os.ReadDir(fp)
 	if err != nil {
-		panic(err)
+		if os.IsNotExist(err) {
+			return
+		} else {
+			panic(err)
+		}
 	}
+
 	for _, f := range dir {
 		if f.IsDir() {
 			continue
@@ -66,24 +81,36 @@ func (e *Environment) Configure() {
 	e.TeamID = teamId
 	e.AuthKey = authKey
 
-	e.writeEnvFile(e.EnvFileName)
-	fmt.Println("Configuration successful. Rerun the start command")
+	fp, err := e.writeEnvFile()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Configuration successful. " + fp)
+	fmt.Println("Rerun the start command to continue")
 	os.Exit(0)
 }
 
-func (e *Environment) writeEnvFile(filename string) {
+func (e *Environment) writeEnvFile() (string, error) {
 	temp := map[string]string{
 		"VERCEL_ENDPOINT": e.ApiEndpoint,
 		"VERCEL_AUTH_KEY": e.AuthKey,
 		"VERCEL_TEAM_ID":  e.TeamID,
 	}
 
-	root, err := utils.GetRootDir()
+	homeDir, err := utils.GetHomeDir()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	fp := root + "/" + filename
+	// Create the necessary directories, if they don't exist
+	dp := homeDir + "/" + e.EnvFileDir
+	err = os.MkdirAll(dp, 0755)
+	if err != nil {
+		return "", err
+	}
+
+	fp := dp + e.EnvFileName
 	fmt.Println("Creating file at " + fp)
 	c := []byte{}
 	for k, v := range temp {
@@ -93,6 +120,8 @@ func (e *Environment) writeEnvFile(filename string) {
 
 	err = os.WriteFile(fp, c, 0644)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
+
+	return fp, nil
 }
