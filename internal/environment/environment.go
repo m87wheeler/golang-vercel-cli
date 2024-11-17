@@ -15,8 +15,9 @@ const (
 
 type Environment struct {
 	// env file
-	EnvFileDir  string
-	EnvFileName string
+	EnvFileDir  string // path segment for where the .env file will be
+	EnvFileName string // the name of the .env file
+	EnvLoadFrom string // a complete filepath for the .env file for use with github.com/joho/godotenv
 	EnvFound    bool
 	// vercel values
 	TeamID      string
@@ -62,6 +63,7 @@ func (e *Environment) Load() {
 			continue
 		}
 		if f.Name() == e.EnvFileName {
+			e.EnvLoadFrom = fp + e.EnvFileName
 			e.EnvFound = true
 		}
 	}
