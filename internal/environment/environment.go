@@ -70,23 +70,23 @@ func (e *Environment) Load() {
 
 func (e *Environment) Configure() {
 	r := utils.Reader()
-	teamId, err := utils.UserInput(r, "Enter your Vercel team ID")
+	teamId, err := utils.UserInput(r, "Enter your Vercel team ID", false)
 	if err != nil {
 		log.Fatal(err)
 	}
-	authKey, err := utils.UserInput(r, "Enter your Vercel auth token")
+	authKey, err := utils.UserInput(r, "Enter your Vercel auth token", true)
 	if err != nil {
 		log.Fatal(err)
 	}
 	e.TeamID = teamId
 	e.AuthKey = authKey
 
-	fp, err := e.writeEnvFile()
+	_, err = e.writeEnvFile()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Configuration successful. " + fp)
+	fmt.Println("Configuration successful")
 	fmt.Println("Rerun the start command to continue")
 	os.Exit(0)
 }
@@ -111,7 +111,7 @@ func (e *Environment) writeEnvFile() (string, error) {
 	}
 
 	fp := dp + e.EnvFileName
-	fmt.Println("Creating file at " + fp)
+	fmt.Println("\nCreating environment file at " + fp)
 	c := []byte{}
 	for k, v := range temp {
 		s := fmt.Sprintf("%s=%s\n", k, v)

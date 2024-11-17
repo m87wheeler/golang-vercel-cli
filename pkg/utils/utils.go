@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"golang.org/x/term"
 )
 
 func ElapsedTime(sinceUnix int64) string {
@@ -79,9 +81,15 @@ func Reader() *bufio.Reader {
 	return reader
 }
 
-func UserInput(reader *bufio.Reader, msg string) (string, error) {
+func UserInput(reader *bufio.Reader, msg string, secret bool) (string, error) {
 	fmt.Printf("%s:", msg)
-	key, err := reader.ReadString('\n')
+	var key string
+	var err error
+	if secret {
+		key, err = readSecretInput()
+	} else {
+		key, err = readStandardInput(reader)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -89,4 +97,20 @@ func UserInput(reader *bufio.Reader, msg string) (string, error) {
 		return "", errors.New("no value provided")
 	}
 	return key, nil
+}
+
+func readStandardInput(reader *bufio.Reader) (string, error) {
+	key, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	return key, nil
+}
+
+func readSecretInput() (string, error) {
+	secret, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return "", err
+	}
+	return string(secret), err
 }
