@@ -1,7 +1,7 @@
-.PHONY: dev
 dev:
 	go run cmd/main.go
 
-.PHONY: build
 build:
-	go build cmd/main.go 
+	go build -ldflags "-X main.version=1.0.0" -o go_vercel_cli cmd/main.go
+
+.PHONY: dev build

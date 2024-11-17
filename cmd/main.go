@@ -14,7 +14,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var version = "development"
+
 func main() {
+	fmt.Printf("Version: %s\n", version)
+
 	// Load or configure environment
 	e := environment.NewEnvironment()
 	e.Load()
